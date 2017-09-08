@@ -1,18 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\campaignmonitor\Form\SettingsForm.
- */
-
 namespace Drupal\campaignmonitor\Form;
 
-use Drupal;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
-use Drupal\Core\Render\Element;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\campaignmonitor\CampaignMonitor;
 
@@ -33,30 +24,23 @@ class SettingsForm extends ConfigFormBase {
    */
   protected $campaignMonitor;
 
-
   /**
    * Constructs a new SubscribeForm.
    */
-  public function __construct() {
+  public function __construct(ConfigFactoryInterface $config_factory) {
+    parent::__construct($config_factory);
+
     $this->campaignMonitor = CampaignMonitor::GetConnector();
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
-    return new static();
-  }
-
-  /** 
-   * {@inheritdoc}
-   */
-  public function getFormID() {
+  public function getFormId() {
     return 'campaignmonitor_admin_settings_form';
   }
 
-
-  /** 
+  /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
@@ -66,11 +50,10 @@ class SettingsForm extends ConfigFormBase {
     ];
   }
 
-
-  /** 
+  /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {       
+  public function buildForm(array $form, FormStateInterface $form_state) {
 
     // Get config details.
     $account = $this->config('campaignmonitor.account');
@@ -120,7 +103,7 @@ class SettingsForm extends ConfigFormBase {
         '#title' => t('Cache timeout'),
         '#description' => t('Cache timeout in seconds for stats, subscribers and archive information.'),
         '#size' => 4,
-        '#default_value' => $general->get('cache_timeout'),      
+        '#default_value' => $general->get('cache_timeout'),
       );
 
       $form['campaignmonitor_general']['library_path'] = array(
@@ -130,7 +113,7 @@ class SettingsForm extends ConfigFormBase {
         '#default_value' => $general->get('library_path'),
       );
 
-       $form['campaignmonitor_general']['page'] = array(
+      $form['campaignmonitor_general']['page'] = array(
         '#type' => 'checkbox',
         '#title' => t('Enable signup page'),
         '#description' => t('Create a signup page at "\newsletter".'),
@@ -186,12 +169,12 @@ class SettingsForm extends ConfigFormBase {
   /**
    * Clears the caches.
    */
-  public function submitCacheClear(array $form, FormStateInterface $form_state) {    
+  public function submitCacheClear(array $form, FormStateInterface $form_state) {
     $this->campaignMonitor->clearCache();
     drupal_set_message(t('Caches cleared.'));
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -214,4 +197,5 @@ class SettingsForm extends ConfigFormBase {
 
     $this->campaignMonitor->clearCache();
   }
+
 }

@@ -3,13 +3,15 @@
 namespace Drupal\campaignmonitor\Form;
 
 use Drupal\campaignmonitor\CampaignMonitor;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element;
 use Egulias\EmailValidator\EmailValidator;
 
+/**
+ * Class SubscribeForm
+ */
 class SubscribeForm extends FormBase {
 
   /**
@@ -42,14 +44,14 @@ class SubscribeForm extends FormBase {
     return new static();
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function getFormID() {
-    return 'campaignmonitor_admin_settings_form';
+    return 'campaignmonitor_subscribe_form';
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
@@ -86,11 +88,11 @@ class SubscribeForm extends FormBase {
       '#type' => 'submit',
       '#value' => 'Subscribe'
     );
-    
+
     return $form;
   }
 
-  /** 
+  /**
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -104,8 +106,8 @@ class SubscribeForm extends FormBase {
       );
     }
   }
-  
-  /** 
+
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -119,11 +121,11 @@ class SubscribeForm extends FormBase {
     }
 
     foreach($list as $list_id) {
-      
+
       if(!$list_id) {
         continue;
       }
-      
+
       $email = trim($values['email']);
 
       $cm = $this->campaignMonitor;
@@ -135,7 +137,7 @@ class SubscribeForm extends FormBase {
         );
         return FALSE;
       }
-    
+
       // Check if the user should be sent to a subscribe page.
       $lists = $cm->getLists();
       if (isset($lists[$list_id]['details']['ConfirmationSuccessPage']) && !empty($lists[$list_id]['details']['ConfirmationSuccessPage'])) {
@@ -146,8 +148,8 @@ class SubscribeForm extends FormBase {
           $this->t('You are now subscribed to the "@list" list.',
             array('@list' => $lists[$list_id]['name'])),
           'status');
-      }    
-    
-    }    
+      }
+
+    }
   }
 }

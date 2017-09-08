@@ -8,11 +8,8 @@ namespace Drupal\campaignmonitor\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormBuilder;
-use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Config\ConfigFactory;
-use Drupal\Core\Url;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Drupal\campaignmonitor\CampaignMonitor;
 
@@ -27,15 +24,31 @@ class CampaignMonitorController extends ControllerBase {
 
   /**
    * Settings for the module.
+   *
+   * @var array
    */
   protected $settings;
+
+  /**
+   * The config factory service.
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
+   * The form builder service.
+   *
+   * @var \Drupal\Core\Form\FormBuilder
+   */
+  protected $formBuilder;
 
   /**
    * Constructs a new SubscribeForm.
    */
   public function __construct(ConfigFactory $configFactory, FormBuilder $formBuilder) {
     $this->campaignMonitor = CampaignMonitor::GetConnector();
-    $this->config_factory = $configFactory;
+    $this->configFactory = $configFactory;
     $this->formBuilder = $formBuilder;
   }
 
@@ -51,9 +64,9 @@ class CampaignMonitorController extends ControllerBase {
 
   /**
    * Constructs a page with a signup form.
-  */
+   */
   public function content() {
-    $settings = $this->config_factory->get('campaignmonitor.general');
+    $settings = $this->configFactory->get('campaignmonitor.general');
     $page = $settings->get('page');
 
     // If the page option isn't turned on, throw an access denied error.
@@ -65,7 +78,7 @@ class CampaignMonitorController extends ControllerBase {
     $lists = $cm->getLists();
 
     $enabled_lists = array();
-    foreach($lists as $list_id => $enabled) {
+    foreach ($lists as $list_id => $enabled) {
       $enabled_lists[$list_id] = $lists[$list_id]['name'];
     }
 
@@ -81,5 +94,5 @@ class CampaignMonitorController extends ControllerBase {
       'subscribe_form' => $form,
     );
   }
+
 }
-?>

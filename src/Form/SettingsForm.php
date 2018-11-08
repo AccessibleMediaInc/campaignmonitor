@@ -47,6 +47,7 @@ class SettingsForm extends ConfigFormBase {
     return [
       'campaignmonitor.account',
       'campaignmonitor.general',
+      'campaignmonitor.lists'
     ];
   }
 
@@ -58,6 +59,9 @@ class SettingsForm extends ConfigFormBase {
     // Get config details.
     $account = $this->config('campaignmonitor.account');
     $general = $this->config('campaignmonitor.general');
+    //Additions AA
+    $newsletters_config = $this->config('campaignmonitor.lists');
+    //AdditionsEnd AA
 
     // Test if the library has been installed. If it has not been installed an
     // error message will be shown.
@@ -88,6 +92,49 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $account->get('client_id'),
       '#required' => TRUE,
     );
+
+
+    //additions AA
+    $form['campaignmonitor_lists'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Newsletter lists settings'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#tree' => TRUE,
+      );
+
+    $cm = CampaignMonitor::GetConnector();
+    $lists = $cm->getLists();
+
+    foreach ($lists as $list_id => $enabled ) {
+      $restore_key_fr = $list_id . '.enabled_fr';
+      $restore_key_en = $list_id . '.enabled_en';
+
+      $list_setting_name = $lists[$list_id]['name'];
+
+      $form['campaignmonitor_lists'][$list_setting_name] = array(
+        '#type' => 'fieldset',
+        '#title' => t($list_setting_name),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#tree' => TRUE,
+      );
+
+      $form['campaignmonitor_lists'][$list_setting_name]['enabled_fr' ] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enabled for French'),
+        '#description' => t('Enable this newsletter for French.'),
+        '#default_value' => $newsletters_config->get($restore_key_fr),
+      );
+
+      $form['campaignmonitor_lists'][$list_setting_name]['enabled_en' ] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enabled for English'),
+        '#description' => t('Enable this newsletter for English.'),
+        '#default_value' => $newsletters_config->get($restore_key_en),
+      );
+    }
+    //additionsend
 
     if (!empty($account)) {
       $form['campaignmonitor_general'] = array(
@@ -194,6 +241,22 @@ class SettingsForm extends ConfigFormBase {
       ->set('logging', $values['campaignmonitor_general']['logging'])
       ->set('instructions', $values['campaignmonitor_general']['instructions'])
       ->save();
+
+    //Additions AA
+    $cm = CampaignMonitor::GetConnector();
+    $lists = $cm->getLists();
+    foreach ($lists as $list_id => $enabled ) {
+      $key = $lists[$list_id]['name'];
+      $config_key_fr = $list_id . '.enabled_fr';
+      $config_key_en = $list_id . '.enabled_en';
+      $store_value_fr = $values['campaignmonitor_lists'][$key]['enabled_fr'];
+      $store_value_en = $values['campaignmonitor_lists'][$key]['enabled_en'];
+      $this->config('campaignmonitor.lists')
+        ->set($config_key_fr, $store_value_fr )
+        ->set($config_key_en, $store_value_en )
+        ->save();
+    }
+    //AdditionsEnd
 
     $this->campaignMonitor->clearCache();
   }

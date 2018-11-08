@@ -89,6 +89,10 @@ class SubscribeForm extends FormBase {
       '#value' => 'Subscribe'
     );
 
+    //additions AA
+    $form['#cache'] = ['max-age' => 0];
+    //additionsEnd
+
     return $form;
   }
 
@@ -97,7 +101,6 @@ class SubscribeForm extends FormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $values = $form_state->getValues();
-
     $email = trim($values['email']);
     if (!$this->emailValidator->isValid($email)) {
       $form_state->setErrorByName(

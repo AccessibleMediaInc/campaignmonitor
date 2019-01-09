@@ -77,10 +77,25 @@ class CampaignMonitorController extends ControllerBase {
     $cm = $this->campaignMonitor;
     $lists = $cm->getLists();
 
+    //additions AA
+    $newsletters_config = $this->config('campaignmonitor.lists');
+    $lang_code = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    //additionsend
+
     $enabled_lists = array();
     foreach ($lists as $list_id => $enabled) {
-      $enabled_lists[$list_id] = $lists[$list_id]['name'];
-    }
+      //additions AA
+      $restore_key_fr = $list_id . '.enabled_fr';
+      $restore_key_en = $list_id . '.enabled_en';
+      $enabled_fr = $newsletters_config->get($restore_key_fr);
+      $enabled_en = $newsletters_config->get($restore_key_en);
+      if ($lang_code=='fr' && !$enabled_fr)
+        continue;
+      if ($lang_code=='en' && !$enabled_en)
+        continue;
+      //additionsEnd
+       $enabled_lists[$list_id] = $lists[$list_id]['name'];
+     }
 
     // Prefix text.
     $prefix = $settings->get('page_prefix');

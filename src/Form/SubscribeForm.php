@@ -62,6 +62,13 @@ class SubscribeForm extends FormBase {
       $enabled_lists = $values['enabled_lists'];
     }
 
+		// Username to make letters more personal
+    $form['name'] = array(
+      '#title' => 'Name',
+      '#type' => 'textfield',
+      '#required' => TRUE,
+    );
+
     $form['email'] = array(
       '#title' => 'Email',
       '#type' => 'textfield',
@@ -130,11 +137,12 @@ class SubscribeForm extends FormBase {
       }
 
       $email = trim($values['email']);
+      $name = trim($values['name']);
 
       $cm = $this->campaignMonitor;
 
       // Update subscriber information or add new subscriber to the list.
-      if (!$cm->subscribe($list_id, $email)) {
+      if (!$cm->subscribe($list_id, $email, $name)) {
         drupal_set_message(
           $this->t('You were not subscribed to the list, please try again.')
         );
